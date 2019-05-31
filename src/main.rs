@@ -12,10 +12,10 @@ pub struct Cpu {
 impl Cpu {
     pub fn new() -> Self {
         let mut ram = [0u8; 4096];
-        let mut program_counter: usize = 0x200;
+        let mut program_counter = 0x200;
         let mut registers = [0u8; 16];
-        let mut i: u16 = 0;
         let mut stack = Vec::<u8>::new();
+        let mut i = 0;
 
         Cpu {
             ram: ram,
@@ -112,6 +112,11 @@ impl Cpu {
 
     pub fn op_fx33(&mut self, x: usize) -> bool {
         println!("Take the decimal representation of V{}, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2", x);
+        let register_val = self.registers[x];
+
+        self.ram[self.i as usize] = register_val / 100;
+        self.ram[(self.i + 1) as usize] = (register_val % 100) / 10;
+        self.ram[(self.i + 2) as usize] = register_val % 10;
         self.program_counter += 2;
         true
     }
@@ -125,6 +130,8 @@ fn main() -> std::io::Result<()> {
     for i in 1..15 {
         cpu.exec();
     }
+
+    println!("{:?}", cpu.ram);
 
     Ok(())
 }
